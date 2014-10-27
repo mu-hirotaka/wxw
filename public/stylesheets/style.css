@@ -7,6 +7,19 @@ a {
   color: #00B7FF;
 }
 
+.form-control {
+  display: inline-block;
+  width: 70%;
+}
+
+.form-common {
+  margin-top: 10px;
+}
+.form-word {
+}
+.form-comment {
+}
+
 .word {
 }
 

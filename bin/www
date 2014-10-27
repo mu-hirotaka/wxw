@@ -36,6 +36,10 @@ var currentNo;
 var io = require('socket.io')(server);
 io.on('connection', function(socket) {
   emitBaseInfo(socket);
+
+  socket.on('post word', function(data) {
+    pushWord(data);
+  });
 });
 
 setInterval(function() { tweetAssociate(); }, 10000);
@@ -48,6 +52,14 @@ function broadcastBaseInfo() {
     word1: { text: currentUser1.text, reference: getReference(currentUser1.nickname) },
     word2: { text: currentUser2.text, reference: getReference(currentUser2.nickname) }
   });
+}
+function pushWord(data) {
+  var word = data.word;
+  if (!('user' in nouns)) {
+    users.push('user');
+    nouns['user'] = [];
+  }
+  nouns['user'].push(word);
 }
 
 var regexp = /^(\w|@|\/|:|\.|\?|!|&|;|:|？|！|\)|\(|"|\||「|｢|」|｣|⇒|-|~|#|\+|=)/g;

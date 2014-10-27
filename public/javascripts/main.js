@@ -4,7 +4,25 @@ $(function() {
   var $word2 = $('#word2 > .word');
   var $reference1 = $('#word1 > .reference');
   var $reference2 = $('#word2 > .reference');
+  var $btnWord = $('#input-word-button');
+  var $btnComment = $('#input-comment-button');
+  var $inputWord = $('#user-word');
+  var $inputComment = $('#user-comment');
   
+  $btnWord.on('click', function() {
+    socket.emit('post word', {
+      word: $inputWord.val(),
+    });
+    $inputWord.val('')
+  });
+
+  $btnComment.on('click', function() {
+    socket.emit('post comment', {
+      comment: $inputComment.val(),
+    });
+    $inputComment.val('')
+  });
+
   socket.on('login', function(data) {
     updateWordView(data.word1, data.word2, 'login');
   });

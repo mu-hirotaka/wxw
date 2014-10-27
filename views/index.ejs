@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
     <title><%= title %></title>
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
-    <link rel='stylesheet' href='/stylesheets/style.css?v=21' />
+    <link rel='stylesheet' href='/stylesheets/style.css?v=27' />
   </head>
   <body>
     <div class="container">
@@ -17,9 +17,20 @@
         <div class="word word-lg text-center"></div>
         <div class="reference text-right"></div>
       </div>
+
+      <div class="form-common form-word">
+        <input type="text" class="form-control" id="user-word" placeholder="希望ワードを入力">
+        <button type="submit" class="btn btn-default" id="input-word-button">Submit</button>
+      </div>
+
+      <div class="form-common form-word">
+        <input type="text" class="form-control" id="user-comment" placeholder="コメントを入力">
+        <button type="submit" class="btn btn-default" id="input-comment-button">Submit</button>
+      </div>
+
     </div>
     <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="/javascripts/main.js?v=21"></script>
+    <script src="/javascripts/main.js?v=27"></script>
   </body>
 </html>
