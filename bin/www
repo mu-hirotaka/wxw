@@ -83,7 +83,6 @@ function broadcastComments() {
 function pushWord(data) {
   var word = data.word;
   if (!('user' in nouns)) {
-    users.push('user');
     nouns['user'] = [];
   }
   nouns['user'].push(word);
@@ -104,46 +103,57 @@ function pushComment(data) {
   }
 }
 
-var regexp = /^(\w|@|\/|:|\.|\?|!|&|;|:|？|！|\)|\(|"|\||「|｢|」|｣|⇒|-|~|#|\+|=)/g;
+var regexp = /^(\w|@|\/|:|\.|\?|!|&|;|:|？|！|\)|\(|"|\||「|｢|」|｣|⇒|-|~|#|\+|=|\^)/g;
 function tweetAssociate() {
-  async.waterfall([
-    function(callback) {
-      if (1) {
-        currentUser = selectUser();
-        currentNo = Math.random() > 0.5 ? 1 : 2;
-        twit.get('/search/tweets.json', {"q":"from:" + currentUser}, function(tweets) {
-          callback(null, tweets);
+  currentUser = selectUser();
+  currentNo = Math.random() > 0.5 ? 1 : 2;
+  if (currentUser === 'user') {
+    copyCurrentUserInfo();
+  } else {
+    async.waterfall([
+      function(callback) {
+        if (1) {
+          twit.get('/search/tweets.json', {"q":"from:" + currentUser}, function(tweets) {
+            callback(null, tweets);
+          });
+        }
+      },
+      function(tweets, callback) {
+        var tweetText = [];
+        us.each(tweets.statuses, function(element) {
+          tweetText.push(element.text);
         });
-      }
-    },
-    function(tweets, callback) {
-      var tweetText = [];
-      us.each(tweets.statuses, function(element) {
-        tweetText.push(element.text);
-      });
-      mecab.parse(tweetText.join(""), function(err, results) {
-        if (err) { throw err; }
-        us.each(results, function(result) {
-          if (!result[0].match(regexp)
-            && result[1] == '名詞'
-            && result[2] != '代名詞'
-            && result[3] != '人名') {
-            nouns[currentUser].push(result[0]);
-          }
+        mecab.parse(tweetText.join(""), function(err, results) {
+          if (err) { throw err; }
+          us.each(results, function(result) {
+            if (!result[0].match(regexp)
+              && result[1] == '名詞'
+              && result[2] != '代名詞'
+              && result[3] != '人名') {
+              nouns[currentUser].push(result[0]);
+            }
+          });
+          nouns[currentUser] = us.uniq(nouns[currentUser]);
+          callback(null);
         });
-        nouns[currentUser] = us.uniq(nouns[currentUser]);
-        callback(null);
-      });
-    }], function(err, results) {
-        copyCurrentUserInfo();
-        broadcastBaseInfo();
-        console.log(nouns);
-  });
+      }], function(err, results) {
+          copyCurrentUserInfo();
+          broadcastBaseInfo();
+          console.log(nouns);
+    });
+  }
 }
 
 function selectUser() {
   var length = users.length;
-  var user = users[Math.floor(Math.random() * length)];
+  var user;
+  if ('user' in nouns) {
+    var tmp = users;
+    tmp = tmp.concat(['user']);
+    user = tmp[Math.floor(Math.random() * (length + 1))];
+  } else {
+    user = users[Math.floor(Math.random() * length)];
+  }
   return user;
 }
 
