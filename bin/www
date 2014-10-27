@@ -20,7 +20,7 @@ var twit = new twitter({
   access_token_secret: 'Ho3rIsn6oBz5282omsiESIveyCBarWsKFRYi8LxkIafgS'
 });
 
-var users = ['SoccerKingJP', 'takapon_jp'];
+var users = ['SoccerKingJP', 'takapon_jp', 'emuskbt'];
 var nouns = hash(users);
 var currentUser1 = {
   text: 'W',
