@@ -15,18 +15,31 @@ $(function() {
 
   function updateWordView(word1, word2, type) {
     if (type !== 'login') {
-      $word1.fadeOut();
-      $word2.fadeOut();
-      $reference1.fadeOut();
-      $reference2.fadeOut();
+      if ($word1.text() !== word1.text) {
+        $word1.fadeOut('fast');
+        $reference1.fadeOut('fast');
+        $word1.fadeIn();
+        $reference1.fadeIn();
+        $word1.text(word1.text);
+        $reference1.text(word1.reference);
+      }
+      if ($word2.text() !== word2.text) {
+        $word2.fadeOut('fast');
+        $reference2.fadeOut('fast');
+        $word2.fadeIn();
+        $reference2.fadeIn();
+        $word2.text(word2.text);
+        $reference2.text(word2.reference);
+      }
+    } else {
+      $word1.text(word1.text);
+      $reference1.text(word1.reference);
+      $word1.fadeIn();
+      $reference1.fadeIn();
+      $word2.text(word2.text);
+      $reference2.text(word2.reference);
+      $word2.fadeIn();
+      $reference2.fadeIn();
     }
-    $word1.text(word1.text);
-    $word2.text(word2.text);
-    $word1.fadeIn();
-    $word2.fadeIn();
-    $reference1.text(word1.reference);
-    $reference2.text(word2.reference);
-    $reference1.fadeIn();
-    $reference2.fadeIn();
   }
 });

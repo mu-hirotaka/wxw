@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 var debug = require('debug')('wxw');
 var app = require('../app');
+var async = require('async');
 var twitter = require('twitter');
 var us = require('underscore')._;
 var MeCab = new require('mecab-async')
@@ -20,55 +21,108 @@ var twit = new twitter({
 });
 
 var users = ['SoccerKingJP', 'takapon_jp'];
+var nouns = hash(users);
+var currentUser1 = {
+  text: 'W',
+  nickname: 'system',
+};
+var currentUser2 = {
+  text: 'W',
+  nickname: 'system',
+};
+var currentUser;
+var currentNo;
 
 var io = require('socket.io')(server);
-
 io.on('connection', function(socket) {
   emitBaseInfo(socket);
 });
 
-setInterval(function() { tweetAssociate(); }, 5000);
+setInterval(function() { tweetAssociate(); }, 10000);
 
 function emitBaseInfo(socket) {
-  socket.emit('login', { word1: { text : "ABCD", reference: 'by user' }, word2: { text: "EFGH", reference: 'by user' } });
+  socket.emit('login', getInitialInfo());
 }
-
 function broadcastBaseInfo() {
-  var length = nouns[users[1]].length;
-  var word1Text = nouns[users[1]][Math.floor(Math.random() * length)];
-  var word2Text = nouns[users[1]][Math.floor(Math.random() * length)];
-  io.sockets.emit('broadcast base info', { word1: { text: word1Text, reference: 'by user' }, word2: { text: word2Text, reference: 'by user' } });
+  io.sockets.emit('broadcast base info', {
+    word1: { text: currentUser1.text, reference: getReference(currentUser1.nickname) },
+    word2: { text: currentUser2.text, reference: getReference(currentUser2.nickname) }
+  });
 }
 
-var nouns = {
-   'takapon_jp' : [],
-};
 var regexp = /^(\w|@|\/|:|\.|\?|!|&|;|:|？|！|\)|\(|"|\||「|｢|」|｣|⇒|-|~|#|\+|=)/g;
-
-function findNoun(text) {
-  mecab.parse(text, function(err, results) {
-    if (err) { throw err; }
-    us.each(results, function(result) {
-      if (!result[0].match(regexp)
-        && result[1] == '名詞'
-        && result[2] != '代名詞'
-        && result[3] != '人名') {
-        nouns[users[1]].push(result[0]);
-      } 
-    });
-    nouns[users[1]] = us.uniq(nouns[users[1]]);
-//    console.log(nouns);
-  });
-}
-
 function tweetAssociate() {
-  twit.get('/search/tweets.json', {"q":"from:" + users[0]}, function(data) {
-    us.each(data.statuses, function(element, index) {
-      findNoun(element.text);
-//      console.log(index + ' ' + element.text);
-    });
-    broadcastBaseInfo();
-    console.log(data.search_metadata);
+  async.waterfall([
+    function(callback) {
+      if (1) {
+        currentUser = selectUser();
+        currentNo = Math.random() > 0.5 ? 1 : 2;
+        twit.get('/search/tweets.json', {"q":"from:" + currentUser}, function(tweets) {
+          callback(null, tweets);
+        });
+      }
+    },
+    function(tweets, callback) {
+      var tweetText = [];
+      us.each(tweets.statuses, function(element) {
+        tweetText.push(element.text);
+      });
+      mecab.parse(tweetText.join(""), function(err, results) {
+        if (err) { throw err; }
+        us.each(results, function(result) {
+          if (!result[0].match(regexp)
+            && result[1] == '名詞'
+            && result[2] != '代名詞'
+            && result[3] != '人名') {
+            nouns[currentUser].push(result[0]);
+          }
+        });
+        nouns[currentUser] = us.uniq(nouns[currentUser]);
+        callback(null);
+      });
+    }], function(err, results) {
+        copyCurrentUserInfo();
+        broadcastBaseInfo();
+        console.log(nouns);
   });
 }
 
+function selectUser() {
+  var length = users.length;
+  var user = users[Math.floor(Math.random() * length)];
+  return user;
+}
+
+function getReference(nickname) {
+  return 'by ' + nickname;
+}
+
+function copyCurrentUserInfo() {
+  var length = nouns[currentUser].length;
+  var text = nouns[currentUser][Math.floor(Math.random() * length)];
+  if (currentNo === 1) {
+    currentUser1.text = text;
+    currentUser1.nickname = currentUser;
+  } else {
+    currentUser2.text = text;
+    currentUser2.nickname = currentUser;
+  }
+}
+
+function hash(keys) {
+  var h = {};
+  us.each(keys, function(key) {
+    h[key] = [];
+  });
+  return h;
+}
+
+function getInitialInfo() {
+  // 後々キャッシュさせて、仮の値を辞める
+  var init = {
+    seqNo: 0,
+    word1: { text: 'W', reference: getReference('system') },
+    word2: { text: 'W', reference: getReference('system') }
+  };
+  return init;
+}
