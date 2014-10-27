@@ -4,6 +4,7 @@ var app = require('../app');
 var async = require('async');
 var twitter = require('twitter');
 var us = require('underscore')._;
+var crypto = require('crypto');
 var MeCab = new require('mecab-async')
   , mecab = new MeCab();
 
@@ -20,7 +21,7 @@ var twit = new twitter({
   access_token_secret: 'Ho3rIsn6oBz5282omsiESIveyCBarWsKFRYi8LxkIafgS'
 });
 
-var users = ['SoccerKingJP', 'takapon_jp', 'emuskbt'];
+var users = ['SoccerKingJP', 'takapon_jp', 'emuskbt', 'DruckerBOT', 'itmedia_news'];
 var nouns = hash(users);
 var currentUser1 = {
   text: 'W',
@@ -40,19 +41,45 @@ io.on('connection', function(socket) {
   socket.on('post word', function(data) {
     pushWord(data);
   });
+
+  socket.on('post comment', function(data) {
+    pushComment(data);
+  });
 });
 
-setInterval(function() { tweetAssociate(); }, 10000);
+setInterval(function() { tweetAssociate(); }, 30000);
+setInterval(function() { broadcastComments(); }, 5000);
 
 function emitBaseInfo(socket) {
   socket.emit('login', getInitialInfo());
 }
 function broadcastBaseInfo() {
+  var userComments = [];
+  var mixText = currentUser1.text + currentUser2.text;
+  var key = md5_hex(mixText);
+  if (key in comments) {
+    userComments = comments[key];
+  }
+
   io.sockets.emit('broadcast base info', {
     word1: { text: currentUser1.text, reference: getReference(currentUser1.nickname) },
-    word2: { text: currentUser2.text, reference: getReference(currentUser2.nickname) }
+    word2: { text: currentUser2.text, reference: getReference(currentUser2.nickname) },
+    comments: userComments,
   });
 }
+function broadcastComments() {
+  var userComments = [];
+  var mixText = currentUser1.text + currentUser2.text;
+  var key = md5_hex(mixText);
+  if (key in comments) {
+    userComments = comments[key];
+  }
+
+  io.sockets.emit('broadcast comments', {
+    comments: userComments,
+  });
+}
+
 function pushWord(data) {
   var word = data.word;
   if (!('user' in nouns)) {
@@ -60,6 +87,21 @@ function pushWord(data) {
     nouns['user'] = [];
   }
   nouns['user'].push(word);
+  nouns['user'] = us.uniq(nouns['user']);
+}
+
+var comments = {};
+function pushComment(data) {
+  var comment = data.comment || '';
+  var mixText = data.text1 + data.text2;
+  var key = md5_hex(mixText);
+  if (!(key in comments)) {
+    comments[key] = [];
+  }
+  if (comment.length > 0) {
+    comments[key].push(comment);
+    comments[key] = us.uniq(comments[key]);
+  }
 }
 
 var regexp = /^(\w|@|\/|:|\.|\?|!|&|;|:|？|！|\)|\(|"|\||「|｢|」|｣|⇒|-|~|#|\+|=)/g;
@@ -127,6 +169,12 @@ function hash(keys) {
     h[key] = [];
   });
   return h;
+}
+
+function md5_hex(src) {
+  var md5 = crypto.createHash('md5');
+  md5.update(src, 'utf8');
+  return md5.digest('hex');
 }
 
 function getInitialInfo() {

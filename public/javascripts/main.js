@@ -8,6 +8,7 @@ $(function() {
   var $btnComment = $('#input-comment-button');
   var $inputWord = $('#user-word');
   var $inputComment = $('#user-comment');
+  var $comments = $('#user-comments');
   
   $btnWord.on('click', function() {
     socket.emit('post word', {
@@ -19,19 +20,25 @@ $(function() {
   $btnComment.on('click', function() {
     socket.emit('post comment', {
       comment: $inputComment.val(),
+      text1: $word1.text(),
+      text2: $word2.text(),
     });
     $inputComment.val('')
   });
 
   socket.on('login', function(data) {
-    updateWordView(data.word1, data.word2, 'login');
+    updateWordView(data.word1, data.word2, 'login', data.comments);
   });
 
   socket.on('broadcast base info', function(data) {
-    updateWordView(data.word1, data.word2, 'broadcast');
+    updateWordView(data.word1, data.word2, 'broadcast', data.comments);
   });
 
-  function updateWordView(word1, word2, type) {
+  socket.on('broadcast comments', function(data) {
+    updateCommentView(data.comments);
+  });
+
+  function updateWordView(word1, word2, type, comments) {
     if (type !== 'login') {
       if ($word1.text() !== word1.text) {
         $word1.fadeOut('fast');
@@ -49,6 +56,12 @@ $(function() {
         $word2.text(word2.text);
         $reference2.text(word2.reference);
       }
+      $comments.empty();
+      if (comments && comments.length > 0) {
+        _.each(comments.reverse(), function(item) {
+          $comments.append('<li>' + item + '</li>');
+        });
+      }
     } else {
       $word1.text(word1.text);
       $reference1.text(word1.reference);
@@ -58,6 +71,15 @@ $(function() {
       $reference2.text(word2.reference);
       $word2.fadeIn();
       $reference2.fadeIn();
+    }
+  }
+
+  function updateCommentView(comments) {
+    $comments.empty();
+    if (comments && comments.length > 0) {
+      _.each(comments.reverse(), function(item) {
+        $comments.append('<li>' + item + '</li>');
+      });
     }
   }
 });
