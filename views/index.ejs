@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title><%= title %></title>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel='stylesheet' href='/stylesheets/style.css?v=10' />
+  </head>
+  <body>
+    <div class="container">
+      <div id="word1">
+        <div class="word word-lg text-center"></div>
+        <div class="reference text-right"></div>
+      </div>
+      <div class="word-separator text-center">x</div>
+      <div id="word2">
+        <div class="word word-lg text-center"></div>
+        <div class="reference text-right"></div>
+      </div>
+    </div>
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/javascripts/main.js?v=10"></script>
+  </body>
+</html>

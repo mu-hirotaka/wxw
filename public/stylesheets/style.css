@@ -1,0 +1,26 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.word {
+}
+
+.word-lg {
+  font-size: 32px;
+}
+
+.word-separator {
+  margin: 0px 0px 15px 0px;
+  font-size: 20px;
+}
+
+.word-separator-default {
+}
+
+.reference {
+}

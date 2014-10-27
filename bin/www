@@ -1,0 +1,74 @@
+#!/usr/bin/env node
+var debug = require('debug')('wxw');
+var app = require('../app');
+var twitter = require('twitter');
+var us = require('underscore')._;
+var MeCab = new require('mecab-async')
+  , mecab = new MeCab();
+
+app.set('port', process.env.PORT || 3000);
+
+var server = app.listen(app.get('port'), function() {
+  debug('Express server listening on port ' + server.address().port);
+});
+
+var twit = new twitter({
+  consumer_key: 'cIXurcheLQEE5HjgO1VJn7CXZ',
+  consumer_secret: 'sXLXy374wMc9kJAAiexWe68hIqRtjqytHHWG4UXQv8ol7xwuxO',
+  access_token_key: '2602562190-1gwuryRjA6lw9jH6rFZmObE7yTnuArIjCUdHNw7',
+  access_token_secret: 'Ho3rIsn6oBz5282omsiESIveyCBarWsKFRYi8LxkIafgS'
+});
+
+var users = ['SoccerKingJP', 'takapon_jp'];
+
+var io = require('socket.io')(server);
+
+io.on('connection', function(socket) {
+  emitBaseInfo(socket);
+});
+
+setInterval(function() { tweetAssociate(); }, 5000);
+
+function emitBaseInfo(socket) {
+  socket.emit('login', { word1: { text : "ABCD", reference: 'by user' }, word2: { text: "EFGH", reference: 'by user' } });
+}
+
+function broadcastBaseInfo() {
+  var length = nouns[users[1]].length;
+  var word1Text = nouns[users[1]][Math.floor(Math.random() * length)];
+  var word2Text = nouns[users[1]][Math.floor(Math.random() * length)];
+  io.sockets.emit('broadcast base info', { word1: { text: word1Text, reference: 'by user' }, word2: { text: word2Text, reference: 'by user' } });
+}
+
+var nouns = {
+   'takapon_jp' : [],
+};
+var regexp = /^(\w|@|\/|:|\.|\?|!|&|;|:|？|！|\)|\(|"|\||「|｢|」|｣|⇒|-|~|#|\+|=)/g;
+
+function findNoun(text) {
+  mecab.parse(text, function(err, results) {
+    if (err) { throw err; }
+    us.each(results, function(result) {
+      if (!result[0].match(regexp)
+        && result[1] == '名詞'
+        && result[2] != '代名詞'
+        && result[3] != '人名') {
+        nouns[users[1]].push(result[0]);
+      } 
+    });
+    nouns[users[1]] = us.uniq(nouns[users[1]]);
+//    console.log(nouns);
+  });
+}
+
+function tweetAssociate() {
+  twit.get('/search/tweets.json', {"q":"from:" + users[0]}, function(data) {
+    us.each(data.statuses, function(element, index) {
+      findNoun(element.text);
+//      console.log(index + ' ' + element.text);
+    });
+    broadcastBaseInfo();
+    console.log(data.search_metadata);
+  });
+}
+
