@@ -21,7 +21,7 @@ var twit = new twitter({
   access_token_secret: 'Ho3rIsn6oBz5282omsiESIveyCBarWsKFRYi8LxkIafgS'
 });
 
-var users = ['SoccerKingJP', 'takapon_jp', 'emuskbt', 'DruckerBOT', 'itmedia_news'];
+var users = ['SoccerKingJP', 'takapon_jp', 'emuskbt', 'itmedia_news', 'atsushilonboo', 'lifehackerjapan', 'gizmodojapan', 'GrowthHackJPN', 'cnet_japan', 'logmijp', 'thebridge_jp', 'jptechcrunch', 'style4design', 'misterspotlight', 'TechableJp', 'venture_now'];
 var nouns = hash(users);
 var currentUser1 = {
   text: 'W',
@@ -47,7 +47,7 @@ io.on('connection', function(socket) {
   });
 });
 
-setInterval(function() { tweetAssociate(); }, 30000);
+setInterval(function() { tweetAssociate(); }, 10000);
 setInterval(function() { broadcastComments(); }, 5000);
 
 function emitBaseInfo(socket) {
@@ -56,6 +56,7 @@ function emitBaseInfo(socket) {
 function broadcastBaseInfo() {
   var userComments = [];
   var mixText = currentUser1.text + currentUser2.text;
+  mixText = mixText || 'default';
   var key = md5_hex(mixText);
   if (key in comments) {
     userComments = comments[key];
@@ -70,6 +71,7 @@ function broadcastBaseInfo() {
 function broadcastComments() {
   var userComments = [];
   var mixText = currentUser1.text + currentUser2.text;
+  mixText = mixText || 'default';
   var key = md5_hex(mixText);
   if (key in comments) {
     userComments = comments[key];
@@ -93,6 +95,7 @@ var comments = {};
 function pushComment(data) {
   var comment = data.comment || '';
   var mixText = data.text1 + data.text2;
+  mixText = mixText || 'default';
   var key = md5_hex(mixText);
   if (!(key in comments)) {
     comments[key] = [];
@@ -103,7 +106,7 @@ function pushComment(data) {
   }
 }
 
-var regexp = /^(\w|@|\/|:|\.|\?|!|&|;|:|？|！|\)|\(|"|\||「|｢|」|｣|⇒|-|~|#|\+|=|\^)/g;
+var regexp = /^(\w|@|\/|:|\.|\?|!|&|;|:|？|！|\)|\(|"|\||「|｢|」|｣|⇒|-|~|#|\+|=|\^|〜)/g;
 function tweetAssociate() {
   currentUser = selectUser();
   currentNo = Math.random() > 0.5 ? 1 : 2;
@@ -112,11 +115,9 @@ function tweetAssociate() {
   } else {
     async.waterfall([
       function(callback) {
-        if (1) {
-          twit.get('/search/tweets.json', {"q":"from:" + currentUser}, function(tweets) {
-            callback(null, tweets);
-          });
-        }
+        twit.get('/search/tweets.json', {"q":"from:" + currentUser}, function(tweets) {
+          callback(null, tweets);
+        });
       },
       function(tweets, callback) {
         var tweetText = [];
