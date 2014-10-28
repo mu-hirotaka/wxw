@@ -38,7 +38,23 @@ a {
 .reference {
 }
 
+ul#stocks {
+  margin-top: 10px;
+}
 ul#user-comments {
+  margin-top: 10px;
+}
+
+
+#stock-button {
+  margin-top: 10px;
+}
+
+#view-button {
+  margin-top: 10px;
+}
+
+#drop-button {
   margin-top: 10px;
 }
 

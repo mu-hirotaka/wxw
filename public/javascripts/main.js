@@ -6,8 +6,12 @@ $(function() {
   var $reference2 = $('#word2 > .reference');
   var $btnWord = $('#input-word-button');
   var $btnComment = $('#input-comment-button');
+  var $btnStock = $('#stock-button');
+  var $btnView = $('#view-button');
+  var $btnDrop = $('#drop-button');
   var $inputWord = $('#user-word');
   var $inputComment = $('#user-comment');
+  var $stocks = $('#stocks');
   var $comments = $('#user-comments');
   
   $btnWord.on('click', function() {
@@ -24,6 +28,23 @@ $(function() {
       text2: $word2.text(),
     });
     $inputComment.val('')
+  });
+
+  $btnStock.on('click', function() {
+    var cache = localStorage.getItem('words') || '';
+    var newWords = '<li>' + $word1.text() + ' x '  + $word2.text() + '</li>';
+    localStorage.setItem('words', newWords + cache);
+  });
+
+  $btnView.on('click', function() {
+    var cache = localStorage.getItem('words') || '';
+    $stocks.empty();
+    $stocks.append(cache);
+  });
+
+  $btnDrop.on('click', function() {
+    $stocks.empty();
+    localStorage.removeItem('words');
   });
 
   socket.on('login', function(data) {

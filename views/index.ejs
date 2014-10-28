@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
     <title><%= title %></title>
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
-    <link rel='stylesheet' href='/stylesheets/style.css?v=32' />
+    <link rel='stylesheet' href='/stylesheets/style.css?v=34' />
   </head>
   <body>
     <div class="container">
@@ -28,12 +28,18 @@
         <button type="submit" class="btn btn-default" id="input-comment-button">Submit</button>
       </div>
 
-      <ul id="user-comments">
-      </ul>
+      <div class="text-center">
+        <button type="button" class="btn btn-default" id="stock-button">Stock</button>
+        <button type="button" class="btn btn-default" id="view-button">View</button>
+        <button type="button" class="btn btn-default" id="drop-button">Drop</button>
+      </div>
+      <ul id="stocks"></ul>
+
+      <ul id="user-comments"></ul>
     </div>
     <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="http://underscorejs.org/underscore-min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="/javascripts/main.js?v=32"></script>
+    <script src="/javascripts/main.js?v=34"></script>
   </body>
 </html>
