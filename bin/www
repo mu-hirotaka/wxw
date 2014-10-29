@@ -107,7 +107,7 @@ function pushComment(data) {
   }
 }
 
-var regexp = /^(@|\/|:|\.|\?|!|&|;|:|？|！|\)|\(|"|\||「|｢|」|｣|⇒|-|~|#|\+|=|\^|〜|–|～|％|[0-9]|）)/g;
+var regexp = /^(@|\/|:|\.|\?|!|&|;|:|？|！|\)|\(|"|\||「|｢|」|｣|⇒|-|~|#|\+|=|\^|〜|–|～|％|[0-9]|）|\[|\])/g;
 function tweetAssociate() {
   currentUser = selectUser();
   currentNo = Math.random() > 0.5 ? 1 : 2;
@@ -154,7 +154,15 @@ function selectUser() {
   if ('user' in nouns) {
     var tmp = users;
     tmp = tmp.concat(['user']);
-    user = tmp[Math.floor(Math.random() * (length + 1))];
+    if (currentUser1.nickname === 'user' || currentUser2.nickname === 'user') {
+      user = tmp[Math.floor(Math.random() * (length + 1))];
+    } else {
+      if ( Math.random() > 0.5 ) {
+        user = 'user';
+      } else {
+        user = tmp[Math.floor(Math.random() * (length + 1))];
+      }
+    }
   } else {
     user = users[Math.floor(Math.random() * length)];
   }
