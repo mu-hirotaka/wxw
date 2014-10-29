@@ -107,7 +107,7 @@ function pushComment(data) {
   }
 }
 
-var regexp = /^(@|\/|:|\.|\?|!|&|;|:|？|！|\)|\(|"|\||「|｢|」|｣|⇒|-|~|#|\+|=|\^|〜|–|～|％|[0-9])/g;
+var regexp = /^(@|\/|:|\.|\?|!|&|;|:|？|！|\)|\(|"|\||「|｢|」|｣|⇒|-|~|#|\+|=|\^|〜|–|～|％|[0-9]|）)/g;
 function tweetAssociate() {
   currentUser = selectUser();
   currentNo = Math.random() > 0.5 ? 1 : 2;
